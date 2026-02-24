@@ -11,7 +11,7 @@
 │  └────┬────┘ └────┬────┘ └────┬────┘   │
 │       └─────────────┴─────────────┘     │
 │              本地 SQLite                 │
-│         (渴爱记录、本性图谱)              │
+│         (念头记录、本性图谱)              │
 └─────────────────────────────────────────┘
                     │
 ┌─────────────────────────────────────────┐
@@ -75,10 +75,10 @@ interface User {
 }
 ```
 
-### 渴爱记录 (desire_records)
+### 念头记录 (thought_records)
 
 ```typescript
-interface DesireRecord {
+interface ThoughtRecord {
   id: string;
   user_id: string;
   content: string;
@@ -126,7 +126,7 @@ interface Decision {
 
 ## API 设计
 
-### 渴爱记录
+### 念头记录
 
 ```typescript
 // 创建记录
