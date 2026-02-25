@@ -4,13 +4,19 @@ import { DB_NAME, CREATE_TABLES, Thought, DailyAnswer, MoodRecord } from '../con
 let db: SQLite.SQLiteDatabase | null = null;
 
 // 初始化数据库
-export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
+export function initDatabase(): SQLite.SQLiteDatabase {
   if (db) return db;
   
-  db = await SQLite.openDatabaseAsync(DB_NAME);
+  db = SQLite.openDatabase(DB_NAME);
   
   // 执行建表语句
-  await db.execAsync(CREATE_TABLES);
+  db.transaction(tx => {
+    CREATE_TABLES.split(';').forEach(statement => {
+      if (statement.trim()) {
+        tx.executeSql(statement.trim());
+      }
+    });
+  });
   
   return db;
 }
@@ -23,13 +29,35 @@ export function getDatabase(): SQLite.SQLiteDatabase {
   return db;
 }
 
+// 执行 SQL 查询（Promise 包装）
+function executeSql(
+  db: SQLite.SQLiteDatabase,
+  sql: string,
+  params: any[] = []
+): Promise<any> {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        sql,
+        params,
+        (_, result) => resolve(result),
+        (_, error) => {
+          reject(error);
+          return false;
+        }
+      );
+    });
+  });
+}
+
 // ==================== 念头记录 CRUD ====================
 
 export async function createThought(thought: Omit<Thought, 'id'>): Promise<Thought> {
   const database = getDatabase();
   const id = generateUUID();
   
-  await database.runAsync(
+  await executeSql(
+    database,
     'INSERT INTO thoughts (id, content, intensity, type, created_at) VALUES (?, ?, ?, ?, ?)',
     [id, thought.content, thought.intensity, thought.type || null, thought.createdAt]
   );
@@ -40,29 +68,32 @@ export async function createThought(thought: Omit<Thought, 'id'>): Promise<Thoug
 export async function getThoughts(limit: number = 50): Promise<Thought[]> {
   const database = getDatabase();
   
-  const results = await database.getAllAsync<Thought>(
+  const result: any = await executeSql(
+    database,
     'SELECT * FROM thoughts ORDER BY created_at DESC LIMIT ?',
     [limit]
   );
   
-  return results;
+  return result.rows?._array || [];
 }
 
 export async function getThoughtsByType(type: string): Promise<Thought[]> {
   const database = getDatabase();
   
-  const results = await database.getAllAsync<Thought>(
+  const result: any = await executeSql(
+    database,
     'SELECT * FROM thoughts WHERE type = ? ORDER BY created_at DESC',
     [type]
   );
   
-  return results;
+  return result.rows?._array || [];
 }
 
 export async function getThoughtStats(): Promise<{ type: string; count: number }[]> {
   const database = getDatabase();
   
-  const results = await database.getAllAsync<{ type: string; count: number }>(
+  const result: any = await executeSql(
+    database,
     `SELECT type, COUNT(*) as count 
      FROM thoughts 
      WHERE type IS NOT NULL 
@@ -70,12 +101,12 @@ export async function getThoughtStats(): Promise<{ type: string; count: number }
      ORDER BY count DESC`
   );
   
-  return results;
+  return result.rows?._array || [];
 }
 
 export async function deleteThought(id: string): Promise<void> {
   const database = getDatabase();
-  await database.runAsync('DELETE FROM thoughts WHERE id = ?', [id]);
+  await executeSql(database, 'DELETE FROM thoughts WHERE id = ?', [id]);
 }
 
 // ==================== 每日回答 CRUD ====================
@@ -85,14 +116,18 @@ export async function saveDailyAnswer(answer: Omit<DailyAnswer, 'id'>): Promise<
   const id = generateUUID();
   
   // 检查是否已存在该天的回答
-  const existing = await database.getFirstAsync<{ id: string }>(
+  const existingResult: any = await executeSql(
+    database,
     'SELECT id FROM daily_answers WHERE day_number = ?',
     [answer.dayNumber]
   );
   
+  const existing = existingResult.rows?._array?.[0];
+  
   if (existing) {
     // 更新现有回答
-    await database.runAsync(
+    await executeSql(
+      database,
       'UPDATE daily_answers SET answer = ?, created_at = ? WHERE id = ?',
       [answer.answer, answer.createdAt, existing.id]
     );
@@ -100,7 +135,8 @@ export async function saveDailyAnswer(answer: Omit<DailyAnswer, 'id'>): Promise<
   }
   
   // 创建新回答
-  await database.runAsync(
+  await executeSql(
+    database,
     'INSERT INTO daily_answers (id, day_number, question, answer, created_at) VALUES (?, ?, ?, ?, ?)',
     [id, answer.dayNumber, answer.question, answer.answer, answer.createdAt]
   );
@@ -111,23 +147,25 @@ export async function saveDailyAnswer(answer: Omit<DailyAnswer, 'id'>): Promise<
 export async function getDailyAnswer(dayNumber: number): Promise<DailyAnswer | null> {
   const database = getDatabase();
   
-  const result = await database.getFirstAsync<DailyAnswer>(
+  const result: any = await executeSql(
+    database,
     'SELECT * FROM daily_answers WHERE day_number = ?',
     [dayNumber]
   );
   
-  return result || null;
+  return result.rows?._array?.[0] || null;
 }
 
 export async function getRecentAnswers(limit: number = 7): Promise<DailyAnswer[]> {
   const database = getDatabase();
   
-  const results = await database.getAllAsync<DailyAnswer>(
+  const result: any = await executeSql(
+    database,
     'SELECT * FROM daily_answers ORDER BY created_at DESC LIMIT ?',
     [limit]
   );
   
-  return results;
+  return result.rows?._array || [];
 }
 
 // ==================== 心安状态 CRUD ====================
@@ -136,7 +174,8 @@ export async function recordMood(mood: Omit<MoodRecord, 'id'>): Promise<MoodReco
   const database = getDatabase();
   const id = generateUUID();
   
-  await database.runAsync(
+  await executeSql(
+    database,
     'INSERT INTO mood_records (id, mood, created_at) VALUES (?, ?, ?)',
     [id, mood.mood, mood.createdAt]
   );
@@ -150,12 +189,13 @@ export async function getTodayMood(): Promise<MoodRecord | null> {
   today.setHours(0, 0, 0, 0);
   const startOfDay = today.getTime();
   
-  const result = await database.getFirstAsync<MoodRecord>(
+  const result: any = await executeSql(
+    database,
     'SELECT * FROM mood_records WHERE created_at >= ? ORDER BY created_at DESC LIMIT 1',
     [startOfDay]
   );
   
-  return result || null;
+  return result.rows?._array?.[0] || null;
 }
 
 // ==================== 统计数据 ====================
@@ -167,22 +207,22 @@ export async function getStats(): Promise<{
 }> {
   const database = getDatabase();
   
-  const thoughtsResult = await database.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM thoughts');
-  
-  const answersResult = await database.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM daily_answers');
+  const thoughtsResult: any = await executeSql(database, 'SELECT COUNT(*) as count FROM thoughts');
+  const answersResult: any = await executeSql(database, 'SELECT COUNT(*) as count FROM daily_answers');
   
   // 计算连续记录天数（简化版：有记录即算）
-  const streakResult = await database.getFirstAsync<{ count: number }>(
+  const streakResult: any = await executeSql(
+    database,
     `SELECT COUNT(DISTINCT date(created_at/1000, 'unixepoch')) as count 
      FROM thoughts 
      WHERE created_at >= ?`,
-    [Date.now() - 30 * 24 * 60 * 60 * 1000] // 最近30天
+    [Date.now() - 30 * 24 * 60 * 60 * 1000]
   );
   
   return {
-    totalThoughts: thoughtsResult?.count || 0,
-    totalAnswers: answersResult?.count || 0,
-    streakDays: Math.min(streakResult?.count || 0, 30),
+    totalThoughts: thoughtsResult.rows?._array?.[0]?.count || 0,
+    totalAnswers: answersResult.rows?._array?.[0]?.count || 0,
+    streakDays: Math.min(streakResult.rows?._array?.[0]?.count || 0, 30),
   };
 }
 
@@ -195,13 +235,17 @@ export async function exportAllData(): Promise<{
 }> {
   const database = getDatabase();
   
-  const [thoughts, answers, moods] = await Promise.all([
-    database.getAllAsync<Thought>('SELECT * FROM thoughts ORDER BY created_at DESC'),
-    database.getAllAsync<DailyAnswer>('SELECT * FROM daily_answers ORDER BY created_at DESC'),
-    database.getAllAsync<MoodRecord>('SELECT * FROM mood_records ORDER BY created_at DESC'),
+  const [thoughtsResult, answersResult, moodsResult] = await Promise.all([
+    executeSql(database, 'SELECT * FROM thoughts ORDER BY created_at DESC'),
+    executeSql(database, 'SELECT * FROM daily_answers ORDER BY created_at DESC'),
+    executeSql(database, 'SELECT * FROM mood_records ORDER BY created_at DESC'),
   ]);
   
-  return { thoughts, answers, moods };
+  return {
+    thoughts: thoughtsResult.rows?._array || [],
+    answers: answersResult.rows?._array || [],
+    moods: moodsResult.rows?._array || [],
+  };
 }
 
 // ==================== 数据清空 ====================
@@ -209,9 +253,9 @@ export async function exportAllData(): Promise<{
 export async function clearAllData(): Promise<void> {
   const database = getDatabase();
   
-  await database.runAsync('DELETE FROM thoughts');
-  await database.runAsync('DELETE FROM daily_answers');
-  await database.runAsync('DELETE FROM mood_records');
+  await executeSql(database, 'DELETE FROM thoughts');
+  await executeSql(database, 'DELETE FROM daily_answers');
+  await executeSql(database, 'DELETE FROM mood_records');
 }
 
 // ==================== 工具函数 ====================

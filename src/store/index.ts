@@ -8,7 +8,7 @@ interface ThoughtsState {
   thoughts: Thought[];
   isLoading: boolean;
   isInitialized: boolean;
-  init: () => Promise<void>;
+  init: () => void;
   addThought: (thought: Omit<Thought, 'id'>) => Promise<void>;
   loadThoughts: () => Promise<void>;
   deleteThought: (id: string) => Promise<void>;
@@ -19,10 +19,10 @@ export const useThoughtsStore = create<ThoughtsState>((set, get) => ({
   isLoading: false,
   isInitialized: false,
   
-  init: async () => {
+  init: () => {
     if (get().isInitialized) return;
-    await db.initDatabase();
-    await get().loadThoughts();
+    db.initDatabase();
+    get().loadThoughts();
     set({ isInitialized: true });
   },
   

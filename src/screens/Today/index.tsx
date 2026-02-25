@@ -4,10 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 
-import { colors, spacing, typography } from '../constants/theme';
-import { MOODS } from '../constants/database';
-import { getTodayQuestion } from '../constants/questions';
-import { useMoodStore, useStatsStore } from '../store';
+import { colors, spacing, typography } from '@/constants/theme';
+import { MOODS } from '@/constants/database';
+import { getTodayQuestion } from '@/constants/questions';
+import { useMoodStore, useStatsStore } from '@/store';
 
 export function TodayScreen() {
   const navigation = useNavigation();

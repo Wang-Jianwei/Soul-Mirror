@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, Alert, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Button, List, Divider } from 'react-native-paper';
 
-import { colors, spacing, typography } from '../constants/theme';
-import { useStatsStore } from '../store';
-import * as db from '../utils/database';
+import { colors, spacing, typography } from '@/constants/theme';
+import { useStatsStore } from '@/store';
+import * as db from '@/utils/database';
 
 export function ProfileScreen() {
   const { totalThoughts, totalAnswers, streakDays, loadStats } = useStatsStore();
