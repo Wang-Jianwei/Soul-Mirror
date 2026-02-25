@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Button, List, Divider } from 'react-native-paper';
 
 import { colors, spacing, typography } from '../constants/theme';
 import { useStatsStore } from '../store';
+import * as db from '../utils/database';
 
 export function ProfileScreen() {
   const { totalThoughts, totalAnswers, streakDays, loadStats } = useStatsStore();
   const [appVersion] = useState('0.1.0');
+  const [isExporting, setIsExporting] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   
   useEffect(() => {
     loadStats();
@@ -16,15 +19,16 @@ export function ProfileScreen() {
   
   const handleExportData = async () => {
     try {
-      // 实际实现需要从数据库导出
-      const data = {
+      setIsExporting(true);
+      
+      const data = await db.exportAllData();
+      const exportData = {
         exportDate: new Date().toISOString(),
         version: appVersion,
-        thoughts: [], // 从数据库获取
-        answers: [],  // 从数据库获取
+        ...data,
       };
       
-      const jsonString = JSON.stringify(data, null, 2);
+      const jsonString = JSON.stringify(exportData, null, 2);
       
       await Share.share({
         message: jsonString,
@@ -32,6 +36,8 @@ export function ProfileScreen() {
       });
     } catch (error) {
       Alert.alert('导出失败', '请重试');
+    } finally {
+      setIsExporting(false);
     }
   };
   
@@ -45,8 +51,16 @@ export function ProfileScreen() {
           text: '清空', 
           style: 'destructive',
           onPress: async () => {
-            // 实际实现需要清空数据库
-            Alert.alert('已清空', '所有数据已删除');
+            try {
+              setIsClearing(true);
+              await db.clearAllData();
+              await loadStats();
+              Alert.alert('已清空', '所有数据已删除');
+            } catch (error) {
+              Alert.alert('清空失败', '请重试');
+            } finally {
+              setIsClearing(false);
+            }
           }
         },
       ]
@@ -89,9 +103,10 @@ export function ProfileScreen() {
             
             <List.Item
               title="导出全部数据"
-              description="JSON 格式"
+              description={isExporting ? '导出中...' : 'JSON 格式'}
               left={props => <List.Icon {...props} icon="export" color={colors.primary} />}
               onPress={handleExportData}
+              disabled={isExporting}
               titleStyle={styles.listItemTitle}
               descriptionStyle={styles.listItemDescription}
             />
@@ -100,9 +115,10 @@ export function ProfileScreen() {
             
             <List.Item
               title="清空所有记录"
-              description="不可恢复"
+              description={isClearing ? '清空中...' : '不可恢复'}
               left={props => <List.Icon {...props} icon="delete" color={colors.error} />}
               onPress={handleClearData}
+              disabled={isClearing}
               titleStyle={[styles.listItemTitle, { color: colors.error }]}
               descriptionStyle={styles.listItemDescription}
             />
