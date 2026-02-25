@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 // 心镜应用截图脚本
 // 使用: node scripts/screenshot.js [url] [output]
@@ -11,6 +11,7 @@ async function captureScreenshot(url = DEFAULT_URL, outputPath = DEFAULT_OUTPUT)
   
   const browser = await puppeteer.launch({
     headless: 'new',
+    executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome',
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',

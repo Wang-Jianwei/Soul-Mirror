@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心镜 v0.1 - 预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1A1A1A;
+            color: #F5F5F5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .phone {
+            width: 390px;
+            height: 844px;
+            background: #1A1A1A;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .screen {
+            padding: 20px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .title {
+            font-size: 24px;
+            text-align: center;
+            margin: 40px 0 30px;
+            color: #F5F5F5;
+        }
+        
+        .mood-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .mood-item {
+            background: #2A2A2A;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .mood-emoji {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .mood-label {
+            font-size: 15px;
+            color: #F5F5F5;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #2A2A2A;
+            margin: 30px 0;
+        }
+        
+        .card {
+            background: #2A2A2A;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-day {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .card-text {
+            font-size: 17px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        
+        .btn {
+            background: #E8D5B7;
+            color: #1A1A1A;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .section-title {
+            font-size: 17px;
+            margin-bottom: 16px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            color: #E8D5B7;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #A0A0A0;
+            margin-top: 4px;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #E8D5B7;
+            color: #E8D5B7;
+        }
+        
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: #1A1A1A;
+            border-top: 1px solid #2A2A2A;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .tab-item {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .tab-item.active {
+            color: #E8D5B7;
+        }
+        
+        .tab-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="screen">
+            <h1 class="title">此刻，你的心安吗？</h1>
+            
+            <div class="mood-grid">
+                <div class="mood-item">
+                    <div class="mood-emoji">😔</div>
+                    <div class="mood-label">不安</div>
+                </div>
+                <div class="mood-item">
+                    <div class="mood-emoji">😌</div>
+                    <div class="mood-label">平静</div>
+                </div>
+                <div class="mood-item">
+                    <div class="mood-emoji">😊</div>
+                    <div class="mood-label">喜悦</div>
+                </div>
+                <div class="mood-item">
+                    <div class="mood-emoji">😶</div>
+                    <div class="mood-label">迷茫</div>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="card">
+                <div class="card-day">Day 1</div>
+                <div class="card-text">你最近在做的一件事，是出自本心，还是被恐惧驱动？</div>
+                <button class="btn">记录回答</button>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <h2 class="section-title">本周觉察</h2>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">念头记录</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">连续记录(天)</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-outline">记录念头</button>
+            
+            <div style="height: 100px;"></div>
+        </div>
+        
+        <div class="tab-bar">
+            <div class="tab-item active">
+                <div class="tab-icon">🌙</div>
+                <div>今日</div>
+            </div>
+            <div class="tab-item">
+                <div class="tab-icon">🪞</div>
+                <div>觉察</div>
+            </div>
+            <div class="tab-item">
+                <div class="tab-icon">👤</div>
+                <div>我的</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
