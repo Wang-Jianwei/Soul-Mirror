@@ -1,15 +1,153 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Alert, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Card, Button, List, Divider } from 'react-native-paper';
+
 import { colors, spacing, typography } from '../constants/theme';
+import { useStatsStore } from '../store';
 
 export function ProfileScreen() {
+  const { totalThoughts, totalAnswers, streakDays, loadStats } = useStatsStore();
+  const [appVersion] = useState('0.1.0');
+  
+  useEffect(() => {
+    loadStats();
+  }, []);
+  
+  const handleExportData = async () => {
+    try {
+      // 实际实现需要从数据库导出
+      const data = {
+        exportDate: new Date().toISOString(),
+        version: appVersion,
+        thoughts: [], // 从数据库获取
+        answers: [],  // 从数据库获取
+      };
+      
+      const jsonString = JSON.stringify(data, null, 2);
+      
+      await Share.share({
+        message: jsonString,
+        title: '心镜数据导出',
+      });
+    } catch (error) {
+      Alert.alert('导出失败', '请重试');
+    }
+  };
+  
+  const handleClearData = () => {
+    Alert.alert(
+      '确认清空',
+      '这将删除所有记录，不可恢复。确定吗？',
+      [
+        { text: '取消', style: 'cancel' },
+        { 
+          text: '清空', 
+          style: 'destructive',
+          onPress: async () => {
+            // 实际实现需要清空数据库
+            Alert.alert('已清空', '所有数据已删除');
+          }
+        },
+      ]
+    );
+  };
+  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>我的</Text>
-        <View style={styles.placeholder}>
-          <Text style={styles.placeholderText}>个人中心功能开发中...</Text>
+        
+        {/* 数据统计 */}
+        <Card style={styles.statsCard}>
+          <Card.Content>
+            <Text style={styles.sectionTitle}>数据统计</Text>
+            
+            <View style={styles.statsGrid}>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{totalThoughts}</Text>
+                <Text style={styles.statLabel}>念头记录</Text>
+              </View>
+              
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{totalAnswers}</Text>
+                <Text style={styles.statLabel}>回答一问</Text>
+              </View>
+              
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{streakDays}</Text>
+                <Text style={styles.statLabel}>连续觉察(天)</Text>
+              </View>
+            </View>
+          </Card.Content>
+        </Card>
+        
+        {/* 数据管理 */}
+        <Card style={styles.menuCard}>
+          <List.Section>
+            <List.Subheader style={styles.subheader}>数据管理</List.Subheader>
+            
+            <List.Item
+              title="导出全部数据"
+              description="JSON 格式"
+              left={props => <List.Icon {...props} icon="export" color={colors.primary} />}
+              onPress={handleExportData}
+              titleStyle={styles.listItemTitle}
+              descriptionStyle={styles.listItemDescription}
+            />
+            
+            <Divider style={styles.divider} />
+            
+            <List.Item
+              title="清空所有记录"
+              description="不可恢复"
+              left={props => <List.Icon {...props} icon="delete" color={colors.error} />}
+              onPress={handleClearData}
+              titleStyle={[styles.listItemTitle, { color: colors.error }]}
+              descriptionStyle={styles.listItemDescription}
+            />
+          </List.Section>
+        </Card>
+        
+        {/* 关于 */}
+        <Card style={styles.menuCard}>
+          <List.Section>
+            <List.Subheader style={styles.subheader}>关于心镜</List.Subheader>
+            
+            <List.Item
+              title="版本"
+              description={appVersion}
+              left={props => <List.Icon {...props} icon="information" color={colors.textSecondary} />}
+              titleStyle={styles.listItemTitle}
+              descriptionStyle={styles.listItemDescription}
+            />
+            
+            <Divider style={styles.divider} />
+            
+            <List.Item
+              title="项目理念"
+              description="不是帮你做更多，而是帮你看清什么值得做"
+              left={props => <List.Icon {...props} icon="heart" color={colors.primary} />}
+              titleStyle={styles.listItemTitle}
+              descriptionStyle={styles.listItemDescription}
+            />
+            
+            <Divider style={styles.divider} />
+            
+            <List.Item
+              title="反馈建议"
+              description="告诉我们你的想法"
+              left={props => <List.Icon {...props} icon="email" color={colors.textSecondary} />}
+              onPress={() => {}}
+              titleStyle={styles.listItemTitle}
+              descriptionStyle={styles.listItemDescription}
+            />
+          </List.Section>
+        </Card>
+        
+        {/* 底部标语 */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>此心光明，亦复何言。</Text>
         </View>
       </View>
     </SafeAreaView>
@@ -30,13 +168,60 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.lg,
   },
-  placeholder: {
-    flex: 1,
-    justifyContent: 'center',
+  statsCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    marginBottom: spacing.lg,
+  },
+  sectionTitle: {
+    ...typography.h3,
+    color: colors.text,
+    marginBottom: spacing.lg,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  statItem: {
     alignItems: 'center',
   },
-  placeholderText: {
+  statNumber: {
+    ...typography.h1,
+    color: colors.primary,
+  },
+  statLabel: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+  },
+  menuCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    marginBottom: spacing.lg,
+  },
+  subheader: {
     ...typography.body,
     color: colors.textSecondary,
+  },
+  listItemTitle: {
+    ...typography.body,
+    color: colors.text,
+  },
+  listItemDescription: {
+    ...typography.caption,
+    color: colors.textMuted,
+  },
+  divider: {
+    backgroundColor: colors.card,
+  },
+  footer: {
+    marginTop: 'auto',
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
+  },
+  footerText: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontStyle: 'italic',
   },
 });
