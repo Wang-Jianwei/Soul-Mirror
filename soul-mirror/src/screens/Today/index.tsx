@@ -13,11 +13,12 @@ export function TodayScreen() {
   const navigation = useNavigation();
   const [todayQuestion, setTodayQuestion] = useState(getTodayQuestion());
   
-  const { todayMood, recordMood } = useMoodStore();
+  const { todayMood, recordMood, loadTodayMood } = useMoodStore();
   const { totalThoughts, streakDays, loadStats } = useStatsStore();
   
   useEffect(() => {
     loadStats();
+    loadTodayMood();
   }, []);
   
   const handleMoodSelect = async (moodId: string) => {
@@ -71,7 +72,12 @@ export function TodayScreen() {
         <View style={styles.divider} />
         
         {/* 本周觉察 */}
-        <Text style={styles.sectionTitle}>本周觉察</Text>
+        <View style={styles.statsHeader}>
+          <Text style={styles.sectionTitle}>本周觉察</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('ThoughtHistory' as never)}>
+            <Text style={styles.viewAll}>查看全部</Text>
+          </TouchableOpacity>
+        </View>
         
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
@@ -162,6 +168,16 @@ const styles = StyleSheet.create({
   },
   answerButton: {
     borderRadius: 8,
+  },
+  statsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  viewAll: {
+    ...typography.caption,
+    color: colors.primary,
   },
   sectionTitle: {
     ...typography.h3,
