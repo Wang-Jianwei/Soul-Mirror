@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card } from 'react-native-paper';
 
-import { colors, spacing, typography } from '../constants/theme';
-import { THOUGHT_TYPES, ThoughtType } from '../constants/database';
-import { useThoughtsStore } from '../store';
+import { colors, spacing, typography } from '@/constants/theme';
+import { THOUGHT_TYPES, ThoughtType } from '@/constants/database';
+import { useThoughtsStore } from '@/store';
 
 export function ThoughtsScreen() {
   const [content, setContent] = useState('');

@@ -5,13 +5,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { theme } from './src/constants/theme';
-import { useThoughtsStore } from './src/store';
-import { TodayScreen } from './src/screens/Today';
-import { ThoughtsScreen } from './src/screens/Thoughts';
-import { ThoughtHistoryScreen } from './src/screens/ThoughtHistory';
-import { ProfileScreen } from './src/screens/Profile';
-import { DailyAnswerScreen } from './src/screens/DailyAnswer';
+import { theme } from '@/constants/theme';
+import { useThoughtsStore } from '@/store';
+import { TodayScreen } from '@/screens/Today';
+import { ThoughtsScreen } from '@/screens/Thoughts';
+import { ThoughtHistoryScreen } from '@/screens/ThoughtHistory';
+import { ProfileScreen } from '@/screens/Profile';
+import { DailyAnswerScreen } from '@/screens/DailyAnswer';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -79,6 +79,6 @@ export default function App() {
           </AppInitializer>
         </NavigationContainer>
       </PaperProvider>
-    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

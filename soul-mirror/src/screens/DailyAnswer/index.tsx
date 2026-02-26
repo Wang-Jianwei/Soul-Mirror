@@ -4,9 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { colors, spacing, typography } from '../constants/theme';
-import { getTodayQuestion, getQuestionByDay } from '../constants/questions';
-import { useDailyAnswerStore } from '../store';
+import { colors, spacing, typography } from '@/constants/theme';
+import { getTodayQuestion, getQuestionByDay } from '@/constants/questions';
+import { useDailyAnswerStore } from '@/store';
 
 export function DailyAnswerScreen() {
   const navigation = useNavigation();

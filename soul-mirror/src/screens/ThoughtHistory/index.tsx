@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from 'react-native-paper';
 
-import { colors, spacing, typography } from '../constants/theme';
-import { THOUGHT_TYPES } from '../constants/database';
-import { useThoughtsStore } from '../store';
+import { colors, spacing, typography } from '@/constants/theme';
+import { THOUGHT_TYPES } from '@/constants/database';
+import { useThoughtsStore } from '@/store';
 
 function formatDate(timestamp: number): string {
   const date = new Date(timestamp);
