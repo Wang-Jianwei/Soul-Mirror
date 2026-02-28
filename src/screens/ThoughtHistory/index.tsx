@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { colors, spacing, typography } from '@/constants/theme';
 import { THOUGHT_TYPES } from '@/constants/database';
@@ -45,6 +47,7 @@ function groupThoughtsByDate(thoughts: any[]) {
 }
 
 export function ThoughtHistoryScreen() {
+  const navigation = useNavigation();
   const { thoughts, isLoading, loadThoughts, deleteThought } = useThoughtsStore();
   
   useEffect(() => {
@@ -125,8 +128,11 @@ export function ThoughtHistoryScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>念头历史</Text>
-        <Text style={styles.subtitle}>共 {thoughts.length} 条记录</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Main' as never)} style={styles.backButton}>
+          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>念头历史</Text>
+        <View style={styles.placeholder} />
       </View>
       
       <FlatList
@@ -155,17 +161,33 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    padding: spacing.lg,
-    paddingBottom: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.surface,
+    backgroundColor: colors.background,
+    minHeight: 56,
   },
-  title: {
-    ...typography.h2,
+  backButton: {
+    padding: spacing.sm,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: 8,
+  },
+  headerTitle: {
+    ...typography.h3,
     color: colors.text,
+    flex: 1,
+    textAlign: 'center',
   },
-  subtitle: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
+  placeholder: {
+    width: 44,
   },
   listContent: {
     padding: spacing.lg,

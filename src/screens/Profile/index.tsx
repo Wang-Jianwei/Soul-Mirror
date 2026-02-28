@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Alert, Share } from 'react-native';
+import { View, Text, StyleSheet, Alert, Share, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Button, List, Divider } from 'react-native-paper';
 
 import { colors, spacing, typography } from '@/constants/theme';
 import { useStatsStore } from '@/store';
-import * as db from '@/utils/database';
+import { exportAllData, clearAllData } from '@/store';
 
 export function ProfileScreen() {
   const { totalThoughts, totalAnswers, streakDays, loadStats } = useStatsStore();
@@ -21,9 +21,13 @@ export function ProfileScreen() {
     try {
       setIsExporting(true);
       
-      const data = await db.exportAllData();
+      const data = await exportAllData();
+      if (!data) {
+        Alert.alert('导出失败', '请先登录');
+        return;
+      }
+      
       const exportData = {
-        exportDate: new Date().toISOString(),
         version: appVersion,
         ...data,
       };
@@ -53,7 +57,7 @@ export function ProfileScreen() {
           onPress: async () => {
             try {
               setIsClearing(true);
-              await db.clearAllData();
+              await clearAllData();
               await loadStats();
               Alert.alert('已清空', '所有数据已删除');
             } catch (error) {
@@ -69,7 +73,7 @@ export function ProfileScreen() {
   
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         <Text style={styles.title}>我的</Text>
         
         {/* 数据统计 */}
@@ -165,7 +169,7 @@ export function ProfileScreen() {
         <View style={styles.footer}>
           <Text style={styles.footerText}>此心光明，亦复何言。</Text>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -175,9 +179,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     padding: spacing.lg,
+    paddingBottom: spacing.xl * 2,
+    maxWidth: 600,
+    width: '100%',
+    alignSelf: 'center',
   },
   title: {
     ...typography.h2,

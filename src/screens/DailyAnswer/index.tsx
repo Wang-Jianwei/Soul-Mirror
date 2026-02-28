@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { colors, spacing, typography } from '@/constants/theme';
 import { getTodayQuestion, getQuestionByDay } from '@/constants/questions';
-import { useDailyAnswerStore } from '@/store';
+import { useDailyAnswerStore, useStatsStore } from '@/store';
 
 export function DailyAnswerScreen() {
   const navigation = useNavigation();
@@ -24,6 +25,7 @@ export function DailyAnswerScreen() {
   const [isSaving, setIsSaving] = useState(false);
   
   const { todayAnswer, saveAnswer, loadTodayAnswer } = useDailyAnswerStore();
+  const { loadStats } = useStatsStore();
   
   useEffect(() => {
     if (question) {
@@ -45,8 +47,11 @@ export function DailyAnswerScreen() {
       dayNumber: question.day,
       question: question.question,
       answer: answer.trim(),
-      createdAt: Date.now(),
     });
+    
+    // 刷新统计数据
+    await loadStats();
+    
     setIsSaving(false);
     navigation.goBack();
   };
@@ -63,6 +68,14 @@ export function DailyAnswerScreen() {
   
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate('Main' as never)} style={styles.backButton}>
+          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>每日一问</Text>
+        <View style={styles.placeholder} />
+      </View>
+      
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         <Text style={styles.dayLabel}>Day {question.day}</Text>
         <Text style={styles.question}>{question.question}</Text>
@@ -101,6 +114,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.surface,
+    backgroundColor: colors.background,
+    minHeight: 56,
+  },
+  backButton: {
+    padding: spacing.sm,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: 8,
+  },
+  headerTitle: {
+    ...typography.h3,
+    color: colors.text,
+    flex: 1,
+    textAlign: 'center',
+  },
+  placeholder: {
+    width: 44,
   },
   scrollView: {
     flex: 1,

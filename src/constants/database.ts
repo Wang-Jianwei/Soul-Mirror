@@ -38,6 +38,33 @@ CREATE INDEX IF NOT EXISTS idx_thoughts_created ON thoughts(created_at);
 CREATE INDEX IF NOT EXISTS idx_mood_created ON mood_records(created_at);
 `;
 
+// Supabase decisions 表结构（用于参考）
+export const DECISIONS_TABLE_SCHEMA = `
+CREATE TABLE IF NOT EXISTS decisions (
+  id TEXT PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  context TEXT NOT NULL,
+  options TEXT[], -- PostgreSQL array
+  urgency TEXT NOT NULL CHECK (urgency IN ('urgent', 'week', 'month')),
+  model_id TEXT NOT NULL,
+  conversation JSONB NOT NULL DEFAULT '[]',
+  conclusion TEXT,
+  recommendation TEXT,
+  final_decision TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  completed_at TIMESTAMPTZ,
+  review_at TIMESTAMPTZ,
+  review_rating INTEGER CHECK (review_rating BETWEEN 1 AND 5),
+  review_notes TEXT
+);
+
+-- 创建索引
+CREATE INDEX idx_decisions_user ON decisions(user_id);
+CREATE INDEX idx_decisions_created ON decisions(created_at);
+CREATE INDEX idx_decisions_review ON decisions(review_at) WHERE review_at IS NOT NULL;
+`;
+
 // 念头类型
 export const THOUGHT_TYPES = [
   { id: 'knowledge_anxiety', label: '知识焦虑', color: '#D4A574' },
@@ -76,8 +103,27 @@ export interface DailyAnswer {
   createdAt: number;
 }
 
-export interface MoodRecord {
+// 决策记录类型
+export interface Decision {
   id: string;
-  mood: Mood;
+  title: string;
+  context: string;
+  options?: string[];
+  urgency: 'urgent' | 'week' | 'month';
+  modelId: string;
+  conversation: {
+    role: 'system' | 'user' | 'assistant';
+    content: string;
+  }[];
+  conclusion?: string;
+  recommendation?: string;
+  finalDecision?: string;
   createdAt: number;
+  completedAt?: number;
+  reviewAt?: number;
+  reviewRating?: number;
+  reviewNotes?: string;
 }
+
+// 决策状态
+export type DecisionStatus = 'ongoing' | 'completed' | 'reviewed';

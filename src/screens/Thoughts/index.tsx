@@ -24,7 +24,6 @@ export function ThoughtsScreen() {
       content: content.trim(),
       intensity,
       type: selectedType || undefined,
-      createdAt: Date.now(),
     });
     
     // 重置表单
