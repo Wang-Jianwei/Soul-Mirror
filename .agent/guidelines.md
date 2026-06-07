@@ -1,38 +1,25 @@
 # Agent 开发指南
 
+> 哲学立基：[00-思想源泉.md](../docs/00-思想源泉.md)  
+> 当前任务：[.agent/tasks/current.md](tasks/current.md)
+
+---
+
 ## 🚀 快速开始
 
-### 1. 环境准备
-
 ```bash
-# 安装依赖
-make setup
-
-# 启动开发环境
-make dev
-```
-
-### 2. 开发流程
-
-```bash
-# 1. 阅读上下文
+# 查看项目上下文
 cat .agent/context.md
 
-# 2. 查看当前任务
+# 查看当前任务
 cat .agent/tasks/current.md
 
-# 3. 创建功能分支
-git checkout -b feature/TASK-001
+# 创建功能分支
+git checkout -b feature/TASK-XXX
 
-# 4. 开发并测试
-make test
-
-# 5. 提交代码
-git commit -m "feat: 实现渴爱追踪功能"
-
-# 6. 合并到 develop
-git checkout develop
-git merge feature/TASK-001
+# 写代码、提交
+git add -A
+git commit -m "feat: ..."
 ```
 
 ---
@@ -73,8 +60,6 @@ export const DesireTracker: React.FC<DesireTrackerProps> = ({ onRecord }) => {
 
 ## 🧪 测试规范
 
-### 单元测试
-
 ```typescript
 // tests/core/desire.test.ts
 import { analyzeDesirePattern } from '@/core/desire';
@@ -97,20 +82,21 @@ describe('analyzeDesirePattern', () => {
 
 ### 更新文档的时机
 
-- **新增功能** → 更新 `docs/prd/`
-- **修改架构** → 更新 `docs/tech/` + `ADR`
-- **修复 Bug** → 更新 `CHANGELOG.md`
-- **完成任务** → 更新 `.agent/tasks/current.md`
+- **新增功能** → 更新 [02-功能体系.md](../docs/02-功能体系.md)
+- **修改架构** → 更新 [05-技术与路线图.md](../docs/05-技术与路线图.md)
+- **完成任务** → 更新 [.agent/tasks/current.md](tasks/current.md)
+
+> 注：原 `CHANGELOG.md` 已删除，重大变更记在 commit message 里。
 
 ---
 
 ## 🤖 Agent 自检清单
 
-提交代码前，确认：
+提交前确认：
 
 - [ ] 阅读了 `.agent/context.md`
-- [ ] 代码通过 `make lint`
-- [ ] 测试通过 `make test`
+- [ ] 代码通过 lint
+- [ ] 测试通过（如有）
 - [ ] 更新了相关文档
 - [ ] 提交了清晰的 commit message
 
@@ -120,15 +106,15 @@ describe('analyzeDesirePattern', () => {
 
 ### Q: 如何添加新任务？
 
-A: 在 `.agent/tasks/current.md` 按模板添加。
+A: 在 [.agent/tasks/current.md](tasks/current.md) 按模板添加。
 
 ### Q: 如何记录架构决策？
 
-A: 在 `.agent/memory/decisions.md` 按 ADR 格式添加。
+A: 在 [.agent/memory/decisions.md](memory/decisions.md) 按 ADR 格式添加。
 
 ### Q: 遇到不确定的问题？
 
-A: 在 `.agent/memory/todos.md` 记录，等待人工确认。
+A: 记录到 `.agent/memory/todos.md`（待创建），等待人工确认。
 
 ---
 

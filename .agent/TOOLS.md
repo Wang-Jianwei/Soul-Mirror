@@ -1,40 +1,40 @@
-# TOOLS.md - Local Notes
+# TOOLS.md - 本地笔记
 
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+Skills 定义工具的_工作方式_。这个文件是你的_特定_—— 那些你独特设置才有的东西。
 
-## What Goes Here
+## 写什么
 
-Things like:
+比如：
 
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
+- 摄像头名字和位置
+- SSH 主机和别名
+- TTS 偏好语音
+- 扬声器/房间名字
+- 设备昵称
+- 任何环境相关的东西
 
-## Examples
+## 例子
 
 ```markdown
-### Cameras
+### 摄像头
 
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
+- 客厅 → 主区域，180° 广角
+- 入户门 → 入口，运动触发
 
 ### SSH
 
-- home-server → 192.168.1.100, user: admin
+- 家用服务器 → 192.168.1.100，用户：admin
 
 ### TTS
 
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
+- 偏好语音："Nova"（温暖、略英式）
+- 默认扬声器：厨房 HomePod
 ```
 
-## Why Separate?
+## 为什么要分开？
 
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+Skills 是共享的。你的设置是你的。把它们分开，你更新 skill 时不会丢失笔记，分享 skill 时也不会泄露基础设施。
 
 ---
 
-Add whatever helps you do your job. This is your cheat sheet.
+加任何对你工作有帮助的东西。这是你的速查表。
